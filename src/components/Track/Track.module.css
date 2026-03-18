@@ -1,0 +1,77 @@
+.track {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  transition: background 0.15s;
+}
+
+.track:last-child {
+  border-bottom: none;
+}
+
+.track:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.trackInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.trackName {
+  margin: 0 0 0.2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trackDetails {
+  margin: 0;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trackAction {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  margin-left: 0.75rem;
+  border: 2px solid;
+  border-radius: 50%;
+  background: transparent;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add {
+  border-color: #1db954;
+  color: #1db954;
+}
+
+.add:hover {
+  background: #1db954;
+  color: #000;
+}
+
+.remove {
+  border-color: #e74c3c;
+  color: #e74c3c;
+}
+
+.remove:hover {
+  background: #e74c3c;
+  color: #fff;
+}
