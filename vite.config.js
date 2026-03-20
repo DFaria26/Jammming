@@ -6,5 +6,14 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
+    host: '127.0.0.1',
+    proxy: {
+      '/spotify-proxy': {
+        target: 'https://api.spotify.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/spotify-proxy/, ''),
+        secure: true,
+      },
+    },
   },
 })

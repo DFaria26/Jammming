@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import styles from './SearchBar.module.css';
 
-function SearchBar({ onSearch }) {
-  const [term, setTerm] = useState('');
+function SearchBar({ onSearch, initialTerm }) {
+  const [term, setTerm] = useState(initialTerm || '');
 
   function handleSearch() {
     if (term.trim()) {

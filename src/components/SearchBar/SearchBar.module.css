@@ -11,36 +11,37 @@
   padding: 0.85rem 1.25rem;
   border: none;
   border-radius: 50px;
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
+  background: var(--input-bg);
+  color: var(--text-primary);
   font-size: 1rem;
   outline: none;
-  transition: background 0.2s;
+  transition: background 0.2s, color 0.2s;
 }
 
 .searchInput::placeholder {
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--input-placeholder);
 }
 
 .searchInput:focus {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--input-bg-focus);
 }
 
 .searchButton {
   padding: 0.85rem 2rem;
   border: none;
   border-radius: 50px;
-  background: #1db954;
+  background: var(--accent);
   color: #000;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.3s ease;
   white-space: nowrap;
 }
 
 .searchButton:hover {
-  background: #1ed760;
+  background: var(--accent-hover);
+  box-shadow: var(--glow-sm), var(--glow-lg);
 }
 
 .searchButton:active {

@@ -3,7 +3,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--border);
   transition: background 0.15s;
 }
 
@@ -12,7 +12,30 @@
 }
 
 .track:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--track-hover);
+}
+
+.thumbnail {
+  flex-shrink: 0;
+  margin-right: 0.75rem;
+}
+
+.albumArt {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.albumPlaceholder {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 4px;
+  background: var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
 }
 
 .trackInfo {
@@ -24,7 +47,7 @@
   margin: 0 0 0.2rem;
   font-size: 0.95rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -33,17 +56,48 @@
 .trackDetails {
   margin: 0;
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.trackAction {
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   flex-shrink: 0;
+  margin-left: 0.75rem;
+}
+
+.previewButton {
   width: 2rem;
   height: 2rem;
-  margin-left: 0.75rem;
+  border: 2px solid var(--preview-border);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--preview-text);
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.previewButton:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.previewButton.playing {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.trackAction {
+  width: 2rem;
+  height: 2rem;
   border: 2px solid;
   border-radius: 50%;
   background: transparent;
@@ -57,21 +111,55 @@
 }
 
 .add {
-  border-color: #1db954;
-  color: #1db954;
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .add:hover {
-  background: #1db954;
+  background: var(--accent);
   color: #000;
 }
 
 .remove {
-  border-color: #e74c3c;
-  color: #e74c3c;
+  border-color: var(--remove);
+  color: var(--remove);
 }
 
 .remove:hover {
-  background: #e74c3c;
+  background: var(--remove);
   color: #fff;
+}
+
+.progressBar {
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-top: 0.35rem;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.1s linear;
+}
+
+.spotifyLink {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid var(--preview-border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--preview-text);
+  text-decoration: none;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.spotifyLink:hover {
+  border-color: #1db954;
+  color: #1db954;
+  background: rgba(29, 185, 84, 0.1);
 }
