@@ -1,11 +1,37 @@
+.skipLink {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--accent);
+  color: #000;
+  font-weight: 700;
+  border-radius: 0 0 8px 8px;
+  z-index: 1000;
+  text-decoration: none;
+  transition: top 0.2s;
+}
+
+.skipLink:focus {
+  top: 0;
+}
+
 .app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   background: var(--app-bg);
+  background-size: 200% 200%;
+  animation: gradientShift 30s ease infinite;
   color: var(--text-primary);
   font-family: 'Circular', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  transition: background 0.25s, color 0.25s;
+  transition: color 0.25s;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .header {
@@ -13,10 +39,15 @@
   text-align: center;
   background: var(--header-bg);
   border-bottom: 1px solid var(--header-border);
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: center;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 1px 20px rgba(0, 0, 0, 0.1);
 }
 
 .headerControls {
@@ -80,7 +111,7 @@
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  padding: 1rem 1.5rem;
+  padding: 0.75rem 1.5rem;
   background: var(--surface);
   border-radius: 12px;
   border: 1px solid var(--border);
@@ -205,13 +236,13 @@
 
 .main {
   flex: 1;
-  padding: 2rem;
-  max-width: 1100px;
+  padding: 1.5rem 2rem;
+  max-width: 1400px;
   width: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .searchSection {
@@ -229,13 +260,37 @@
 
 .columns {
   display: flex;
-  gap: 1.5rem;
+  gap: 1.25rem;
   align-items: flex-start;
 }
 
-@media (max-width: 700px) {
+.columnLeft {
+  flex: 3;
+  min-width: 0;
+}
+
+.columnCenter {
+  flex: 2.5;
+  min-width: 0;
+}
+
+.columnRight {
+  flex: 2.5;
+  min-width: 0;
+}
+
+.mobileTabs {
+  display: none;
+}
+
+@media (max-width: 900px) {
   .columns {
     flex-direction: column;
+  }
+  .columnLeft,
+  .columnCenter,
+  .columnRight {
+    width: 100%;
   }
   .headerControls {
     position: static;
@@ -246,6 +301,53 @@
     justify-content: space-between;
     padding: 1rem 1.25rem;
   }
+  .mobileTabs {
+    display: flex;
+    gap: 0;
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 4px;
+    border: 1px solid var(--border);
+  }
+  .mobileTab {
+    flex: 1;
+    padding: 0.6rem 0.5rem;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+  }
+  .mobileTabActive {
+    background: var(--accent);
+    color: #000;
+  }
+  .mobileHidden {
+    display: none;
+  }
+}
+
+.footer {
+  padding: 1.5rem 2rem;
+  text-align: center;
+  border-top: 1px solid var(--border);
+  margin-top: auto;
+}
+
+.footer p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.footerSub {
+  margin-top: 0.25rem !important;
+  font-size: 0.7rem !important;
+  opacity: 0.6;
 }
 
 .saveStatus {

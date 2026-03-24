@@ -1,33 +1,38 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import styles from './Track.module.css';
 
-function Track({ track, onAdd, onRemove, isInPlaylist, currentlyPlaying, onPlayPreview }) {
+function Track({ track, onAdd, onRemove, isInPlaylist, currentlyPlaying, onPlayPreview, animationDelay = 0 }) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
   const audioRef = useRef(null);
-  const animRef = useRef(null);
+  const trackRef = useRef(null);
+
+  // Mount animation: add enter class after a delay for staggered effect
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    const timeout = setTimeout(() => {
+      el.classList.add(isInPlaylist ? styles.trackEnterPlaylist : styles.trackEnter);
+    }, animationDelay * 1000);
+    return () => clearTimeout(timeout);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Stop this track if another track starts playing
   useEffect(() => {
     if (currentlyPlaying && currentlyPlaying !== track.id && isPlaying) {
       audioRef.current?.pause();
       setIsPlaying(false);
-      setProgress(0);
-      cancelAnimationFrame(animRef.current);
     }
   }, [currentlyPlaying, track.id, isPlaying]);
 
-  const updateProgress = useCallback(() => {
-    const audio = audioRef.current;
-    if (audio && !audio.paused) {
-      setProgress(audio.duration ? (audio.currentTime / audio.duration) * 100 : 0);
-      animRef.current = requestAnimationFrame(updateProgress);
-    }
-  }, []);
-
   function handleAction() {
     if (isInPlaylist) {
-      onRemove(track);
+      const el = trackRef.current;
+      if (el) {
+        el.classList.add(styles.trackExitPlaylist);
+        el.addEventListener('animationend', () => onRemove(track), { once: true });
+      } else {
+        onRemove(track);
+      }
     } else {
       onAdd(track);
     }
@@ -39,23 +44,19 @@ function Track({ track, onAdd, onRemove, isInPlaylist, currentlyPlaying, onPlayP
     if (isPlaying) {
       audio.pause();
       setIsPlaying(false);
-      cancelAnimationFrame(animRef.current);
     } else {
       if (onPlayPreview) onPlayPreview(track.id);
       audio.play();
       setIsPlaying(true);
-      animRef.current = requestAnimationFrame(updateProgress);
     }
   }
 
   function handleEnded() {
     setIsPlaying(false);
-    setProgress(0);
-    cancelAnimationFrame(animRef.current);
   }
 
   return (
-    <div className={styles.track}>
+    <div ref={trackRef} className={styles.track}>
       <div className={styles.thumbnail}>
         {track.image ? (
           <img src={track.image} alt={track.album} className={styles.albumArt} />
@@ -72,11 +73,6 @@ function Track({ track, onAdd, onRemove, isInPlaylist, currentlyPlaying, onPlayP
         <p className={styles.trackDetails}>
           {track.artist} &bull; {track.album}
         </p>
-        {isPlaying && (
-          <div className={styles.progressBar}>
-            <div className={styles.progressFill} style={{ width: `${progress}%` }} />
-          </div>
-        )}
       </div>
 
       <div className={styles.actions}>
@@ -90,7 +86,8 @@ function Track({ track, onAdd, onRemove, isInPlaylist, currentlyPlaying, onPlayP
             <button
               className={`${styles.previewButton} ${isPlaying ? styles.playing : ''}`}
               onClick={togglePreview}
-              title={isPlaying ? 'Pause preview' : 'Play 30s preview'}
+              title={isPlaying ? `Pause preview of ${track.name}` : `Play 30s preview of ${track.name}`}
+              aria-label={isPlaying ? `Pause preview of ${track.name}` : `Play 30 second preview of ${track.name}`}
             >
               {isPlaying ? '❚❚' : '▶'}
             </button>
@@ -112,7 +109,8 @@ function Track({ track, onAdd, onRemove, isInPlaylist, currentlyPlaying, onPlayP
         <button
           className={`${styles.trackAction} ${isInPlaylist ? styles.remove : styles.add}`}
           onClick={handleAction}
-          title={isInPlaylist ? 'Remove from playlist' : 'Add to playlist'}
+          title={isInPlaylist ? `Remove ${track.name} from playlist` : `Add ${track.name} to playlist`}
+          aria-label={isInPlaylist ? `Remove ${track.name} by ${track.artist} from playlist` : `Add ${track.name} by ${track.artist} to playlist`}
         >
           {isInPlaylist ? '−' : '+'}
         </button>

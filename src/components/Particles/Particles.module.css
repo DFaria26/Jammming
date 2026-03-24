@@ -1,0 +1,59 @@
+.container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.speck {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--particle-color) 0%, transparent 70%);
+  box-shadow: 0 0 16px var(--particle-glow);
+  opacity: 0;
+  animation: float linear infinite;
+}
+
+@keyframes float {
+  0% {
+    opacity: 0;
+    transform: translateY(0) translateX(0) scale(0.8);
+  }
+  10% {
+    opacity: 0.6;
+    transform: translateY(-6px) translateX(calc(var(--drift) * 0.1)) scale(1);
+  }
+  20% {
+    opacity: 0.2;
+  }
+  30% {
+    opacity: 0.7;
+    transform: translateY(-18px) translateX(calc(var(--drift) * 0.3)) scale(1.05);
+  }
+  40% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.5;
+    transform: translateY(-30px) translateX(calc(var(--drift) * 0.5)) scale(0.95);
+  }
+  60% {
+    opacity: 0.1;
+  }
+  70% {
+    opacity: 0.6;
+    transform: translateY(-42px) translateX(calc(var(--drift) * 0.7)) scale(1.05);
+  }
+  80% {
+    opacity: 0.15;
+  }
+  90% {
+    opacity: 0.4;
+    transform: translateY(-54px) translateX(calc(var(--drift) * 0.9)) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-60px) translateX(var(--drift)) scale(0.8);
+  }
+}

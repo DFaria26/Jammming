@@ -15,7 +15,7 @@ function Tracklist({ tracks, onAdd, onRemove, playlistTracks }) {
       {tracks.length === 0 ? (
         <p className={styles.empty}>No tracks to display.</p>
       ) : (
-        tracks.map((track) => (
+        tracks.map((track, index) => (
           <Track
             key={track.id}
             track={track}
@@ -24,6 +24,7 @@ function Tracklist({ tracks, onAdd, onRemove, playlistTracks }) {
             isInPlaylist={playlistIds.has(track.id)}
             currentlyPlaying={currentlyPlaying}
             onPlayPreview={handlePlayPreview}
+            animationDelay={index * 0.05}
           />
         ))
       )}

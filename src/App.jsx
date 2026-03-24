@@ -3,15 +3,11 @@ import SearchBar from './components/SearchBar/SearchBar';
 import SearchResults from './components/SearchResults/SearchResults';
 import Playlist from './components/Playlist/Playlist';
 import { Spotify } from './spotify/spotify';
+import Toast from './components/Toast/Toast';
+import TrendingTracks from './components/TrendingTracks/TrendingTracks';
+import Particles from './components/Particles/Particles';
 import styles from './App.module.css';
 
-const MOCK_TRACKS = [
-  { id: '1', name: 'Blinding Lights', artist: 'The Weeknd', album: 'After Hours', uri: 'spotify:track:0VjIjW4GlUZAMYd2vXMi3b', previewUrl: null, image: null },
-  { id: '2', name: 'Shape of You', artist: 'Ed Sheeran', album: '÷ (Divide)', uri: 'spotify:track:7qiZfU4dY1lWllzX7mPBI3', previewUrl: null, image: null },
-  { id: '3', name: 'Levitating', artist: 'Dua Lipa', album: 'Future Nostalgia', uri: 'spotify:track:463CkQjx2Zfoiqh6zDiVKw', previewUrl: null, image: null },
-  { id: '4', name: 'Peaches', artist: 'Justin Bieber', album: 'Justice', uri: 'spotify:track:4iJyoBOLtHqaWYs3vyWFGE', previewUrl: null, image: null },
-  { id: '5', name: 'Stay', artist: 'The Kid LAROI & Justin Bieber', album: 'F*CK LOVE 3', uri: 'spotify:track:5PjdY0CKGZdEuoNab3yDmX', previewUrl: null, image: null },
-];
 
 function getInitialTheme() {
   const saved = localStorage.getItem('jammming_theme');
@@ -22,17 +18,19 @@ function getInitialTheme() {
 function App() {
   const [theme, setTheme] = useState(getInitialTheme);
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!Spotify.getAccessToken());
-  const [searchResults, setSearchResults] = useState(MOCK_TRACKS);
+  const [searchResults, setSearchResults] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [playlistName, setPlaylistName] = useState('My Playlist');
   const [playlistTracks, setPlaylistTracks] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [statusMessage, setStatusMessage] = useState('');
+  const [toast, setToast] = useState({ message: '', type: 'info', visible: false });
   const [isSaving, setIsSaving] = useState(false);
   const [waveState, setWaveState] = useState('idle');
   const [fadeOrigin, setFadeOrigin] = useState(0);
+  const [mobileTab, setMobileTab] = useState('results');
   const waveTimer = useRef(null);
   const logoTextRef = useRef(null);
+  const undoRef = useRef(null);
 
   const findClosestLetter = useCallback((e) => {
     const container = logoTextRef.current;
@@ -61,6 +59,14 @@ function App() {
     setWaveState('fading');
     waveTimer.current = setTimeout(() => setWaveState('idle'), 1600);
   }, [findClosestLetter]);
+
+  function showToast(message, type = 'info', action = null) {
+    setToast({ message, type, visible: true, action });
+  }
+
+  function hideToast() {
+    setToast((prev) => ({ ...prev, visible: false }));
+  }
 
   // Auto-logout when the access token expires (preserves playlist)
   useEffect(() => {
@@ -100,7 +106,7 @@ function App() {
       })
       .catch((err) => {
         console.error('Auth error:', err);
-        setStatusMessage(`Login failed: ${err.message}`);
+        showToast(`Login failed: ${err.message}`, 'error');
       });
   }, []);
 
@@ -120,27 +126,40 @@ function App() {
   function handleSessionExpired() {
     Spotify.clearToken();
     setIsLoggedIn(false);
-    setSearchResults(MOCK_TRACKS);
-    setStatusMessage('Session expired — please log in again.');
+    setSearchResults([]);
+    showToast('Session expired — please log in again.', 'info');
   }
 
   function handleLogout() {
     Spotify.clearToken();
     setIsLoggedIn(false);
-    setSearchResults(MOCK_TRACKS);
+    setSearchResults([]);
     setPlaylistTracks([]);
     setPlaylistName('My Playlist');
-    setStatusMessage('');
+  }
+
+  function handleUndo() {
+    if (undoRef.current) {
+      setPlaylistName(undoRef.current.name);
+      setPlaylistTracks(undoRef.current.tracks);
+      undoRef.current = null;
+      hideToast();
+      showToast('Playlist restored.', 'info');
+    }
+  }
+
+  function handleClearSearch() {
+    setSearchTerm('');
+    setSearchResults([]);
   }
 
   async function handleSearch(term) {
     setSearchTerm(term);
     if (!isLoggedIn) {
-      setStatusMessage('Please log in first to search.');
+      showToast('Please log in first to search.', 'info');
       return;
     }
     setIsSearching(true);
-    setStatusMessage('');
     try {
       const results = await Spotify.search(term);
       setSearchResults(results);
@@ -150,7 +169,7 @@ function App() {
         handleSessionExpired();
         return;
       }
-      setStatusMessage(err.message);
+      showToast(err.message, 'error');
     } finally {
       setIsSearching(false);
     }
@@ -162,26 +181,48 @@ function App() {
   }
 
   function removeTrack(track) {
-    setPlaylistTracks((prev) => prev.filter((t) => t.id !== track.id));
+    setPlaylistTracks((prev) => {
+      const index = prev.findIndex((t) => t.id === track.id);
+      if (index === -1) return prev;
+      const updated = prev.filter((t) => t.id !== track.id);
+      showToast(`Removed "${track.name}"`, 'info', {
+        label: 'Undo',
+        onClick: () => {
+          setPlaylistTracks((current) => {
+            const restored = [...current];
+            restored.splice(Math.min(index, restored.length), 0, track);
+            return restored;
+          });
+          hideToast();
+        },
+      });
+      return updated;
+    });
+  }
+
+  function handleReorder(newTracks) {
+    setPlaylistTracks(newTracks);
   }
 
   async function savePlaylist() {
     if (!isLoggedIn) {
-      setStatusMessage('Please log in first to save a playlist.');
+      showToast('Please log in first to save a playlist.', 'info');
       return;
     }
     if (!playlistName.trim() || playlistTracks.length === 0) {
-      setStatusMessage('Add a name and at least one track before saving.');
+      showToast('Add a name and at least one track before saving.', 'error');
       return;
     }
     setIsSaving(true);
-    setStatusMessage('');
     try {
       const uris = playlistTracks.map((t) => t.uri);
       await Spotify.savePlaylist(playlistName, uris);
-      setStatusMessage(`"${playlistName}" saved to Spotify!`);
+      const savedName = playlistName;
+      const savedTracks = [...playlistTracks];
       setPlaylistName('My Playlist');
       setPlaylistTracks([]);
+      undoRef.current = { name: savedName, tracks: savedTracks };
+      showToast(`"${savedName}" saved to Spotify!`, 'success', { label: 'Undo', onClick: handleUndo });
     } catch (err) {
       console.error(err);
       if (err.message.includes('Session expired')) {
@@ -190,9 +231,9 @@ function App() {
       } else if (err.message === 'MISSING_SCOPES') {
         Spotify.clearToken();
         setIsLoggedIn(false);
-        setStatusMessage('Playlist permissions missing — please log in again.');
+        showToast('Playlist permissions missing — please log in again.', 'error');
       } else {
-        setStatusMessage(err.message);
+        showToast(err.message, 'error');
       }
     } finally {
       setIsSaving(false);
@@ -201,7 +242,9 @@ function App() {
 
   return (
     <div className={styles.app}>
-      <header className={styles.header}>
+      <Particles />
+      <a className={styles.skipLink} href="#main-content">Skip to content</a>
+      <header className={styles.header} role="banner">
         <h1 className={styles.logo}>
           <svg className={styles.logoIcon} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="50" cy="50" r="50" fill="#1db954"/>
@@ -264,7 +307,7 @@ function App() {
         </div>
       </header>
 
-      <main className={styles.main}>
+      <main className={styles.main} id="main-content">
         {!isLoggedIn && (
           <div className={styles.loginBanner}>
             <p>Sign in with your Spotify account to search and save playlists.</p>
@@ -275,29 +318,69 @@ function App() {
         )}
 
         <section className={styles.searchSection}>
-          <SearchBar onSearch={handleSearch} initialTerm={searchTerm} />
-          {isSearching && <p className={styles.status}>Searching...</p>}
+          <SearchBar onSearch={handleSearch} onClear={handleClearSearch} initialTerm={searchTerm} />
         </section>
+
+        <div className={styles.mobileTabs}>
+          <button
+            className={`${styles.mobileTab} ${mobileTab === 'results' ? styles.mobileTabActive : ''}`}
+            onClick={() => setMobileTab('results')}
+          >
+            Results
+          </button>
+<button
+            className={`${styles.mobileTab} ${mobileTab === 'playlist' ? styles.mobileTabActive : ''}`}
+            onClick={() => setMobileTab('playlist')}
+          >
+            Playlist{playlistTracks.length > 0 ? ` (${playlistTracks.length})` : ''}
+          </button>
+        </div>
 
         <section className={styles.columns}>
-          <SearchResults
-            searchResults={searchResults}
-            onAdd={addTrack}
-            onRemove={removeTrack}
-            playlistTracks={playlistTracks}
-          />
-          <Playlist
-            playlistName={playlistName}
-            playlistTracks={playlistTracks}
-            onNameChange={setPlaylistName}
-            onRemove={removeTrack}
-            onSave={savePlaylist}
-            isSaving={isSaving}
-          />
+          <div className={`${styles.columnLeft} ${mobileTab !== 'results' ? styles.mobileHidden : ''}`}>
+            <SearchResults
+              searchResults={searchResults}
+              onAdd={addTrack}
+              onRemove={removeTrack}
+              playlistTracks={playlistTracks}
+              isSearching={isSearching}
+              isLoggedIn={isLoggedIn}
+            />
+            {isLoggedIn && searchResults.length === 0 && !isSearching && (
+              <TrendingTracks
+                isLoggedIn={isLoggedIn}
+                onAdd={addTrack}
+                playlistTracks={playlistTracks}
+              />
+            )}
+          </div>
+          <div className={`${styles.columnRight} ${mobileTab !== 'playlist' ? styles.mobileHidden : ''}`}>
+            <Playlist
+              playlistName={playlistName}
+              playlistTracks={playlistTracks}
+              onNameChange={setPlaylistName}
+              onRemove={removeTrack}
+              onReorder={handleReorder}
+              onSave={savePlaylist}
+              isSaving={isSaving}
+            />
+          </div>
         </section>
 
-        {statusMessage && <p className={styles.saveStatus}>{statusMessage}</p>}
       </main>
+
+      <footer className={styles.footer}>
+        <p>Built by Daniel Faria</p>
+        <p className={styles.footerSub}>Codecademy - Front-End Engineer (Practice Project: Jammming)</p>
+      </footer>
+
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        visible={toast.visible}
+        onClose={hideToast}
+        action={toast.action}
+      />
     </div>
   );
 }

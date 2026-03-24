@@ -1,17 +1,4 @@
 .tracklist {
-  overflow-y: auto;
-  max-height: 480px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--scrollbar) transparent;
-}
-
-.tracklist::-webkit-scrollbar {
-  width: 6px;
-}
-
-.tracklist::-webkit-scrollbar-thumb {
-  background: var(--scrollbar);
-  border-radius: 3px;
 }
 
 .empty {

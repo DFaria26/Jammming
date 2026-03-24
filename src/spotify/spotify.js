@@ -56,6 +56,8 @@ function clearToken() {
   localStorage.removeItem('spotify_scopes_version');
   localStorage.removeItem('spotify_granted_scopes');
   localStorage.removeItem('spotify_code_verifier');
+  localStorage.removeItem('spotify_user_country');
+  cachedCountry = null;
 }
 
 // ── Pre-redirect state persistence ────────────────────────────────────────────
@@ -170,8 +172,9 @@ async function search(term) {
   const token = getAccessToken();
   if (!token) throw new Error('Not authenticated');
 
+  const country = await getUserCountry();
   const response = await fetch(
-    `https://api.spotify.com/v1/search?type=track&q=${encodeURIComponent(term)}`,
+    `https://api.spotify.com/v1/search?type=track&market=${country}&q=${encodeURIComponent(term)}`,
     { headers: { Authorization: `Bearer ${token}` } }
   );
 
@@ -188,6 +191,7 @@ async function search(term) {
     artist: track.artists[0].name,
     album: track.album.name,
     uri: track.uri,
+    duration_ms: track.duration_ms,
     previewUrl: track.preview_url,
     image: track.album.images?.[track.album.images.length - 1]?.url || null,
   }));
@@ -236,4 +240,72 @@ async function savePlaylist(playlistName, trackUris) {
   if (!addResponse.ok) await throwApiError(addResponse, 'Failed to add tracks');
 }
 
-export const Spotify = { handleCallback, getAccessToken, getExpiresAt, getGrantedScopes, login, clearToken, search, savePlaylist, savePreRedirectState, getPreRedirectState };
+// ── User profile / country ───────────────────────────────────────────────────
+
+const COUNTRY_NAMES = {
+  GB: 'the UK', US: 'the US', CA: 'Canada', AU: 'Australia', DE: 'Germany',
+  FR: 'France', ES: 'Spain', IT: 'Italy', NL: 'the Netherlands', SE: 'Sweden',
+  NO: 'Norway', DK: 'Denmark', FI: 'Finland', BR: 'Brazil', MX: 'Mexico',
+  JP: 'Japan', KR: 'South Korea', IN: 'India', IE: 'Ireland', PT: 'Portugal',
+  PL: 'Poland', AT: 'Austria', CH: 'Switzerland', BE: 'Belgium', NZ: 'New Zealand',
+  ZA: 'South Africa', AR: 'Argentina', CL: 'Chile', CO: 'Colombia', PH: 'the Philippines',
+};
+
+let cachedCountry = localStorage.getItem('spotify_user_country') || null;
+
+async function getUserCountry() {
+  if (cachedCountry) return cachedCountry;
+
+  const token = getAccessToken();
+  if (!token) return 'GB';
+
+  try {
+    const response = await fetch('https://api.spotify.com/v1/me', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) return 'GB';
+    const data = await response.json();
+    cachedCountry = data.country || 'GB';
+    localStorage.setItem('spotify_user_country', cachedCountry);
+    return cachedCountry;
+  } catch {
+    return 'GB';
+  }
+}
+
+function getCountryName(code) {
+  return COUNTRY_NAMES[code] || code;
+}
+
+// ── Trending tracks ──────────────────────────────────────────────────────────
+
+async function getTrendingTracks(limit = 10) {
+  const token = getAccessToken();
+  if (!token) throw new Error('Not authenticated');
+
+  const country = await getUserCountry();
+
+  const response = await fetch(
+    `https://api.spotify.com/v1/search?type=track&q=genre%3Apop&market=${country}&limit=${limit}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+
+  if (!response.ok) await throwApiError(response, 'Failed to fetch trending tracks');
+
+  const data = await response.json();
+  return {
+    country,
+    countryName: getCountryName(country),
+    tracks: data.tracks.items.map((track) => ({
+      id: track.id,
+      name: track.name,
+      artist: track.artists[0].name,
+      album: track.album.name,
+      uri: track.uri,
+      previewUrl: track.preview_url,
+      image: track.album.images?.[track.album.images.length - 1]?.url || null,
+    })),
+  };
+}
+
+export const Spotify = { handleCallback, getAccessToken, getExpiresAt, getGrantedScopes, login, clearToken, search, savePlaylist, savePreRedirectState, getPreRedirectState, getTrendingTracks, getUserCountry, getCountryName };

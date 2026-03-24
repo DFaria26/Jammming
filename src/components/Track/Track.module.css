@@ -1,10 +1,42 @@
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .track {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--border);
-  transition: background 0.15s;
+  transition: background 0.15s, transform 0.2s ease, box-shadow 0.2s ease;
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.trackEnter {
+  animation: slideInLeft 0.3s ease forwards;
+}
+
+.trackEnterPlaylist {
+  animation: slideInRight 0.3s ease forwards;
 }
 
 .track:last-child {
@@ -13,6 +45,8 @@
 
 .track:hover {
   background: var(--track-hover);
+  transform: translateY(-2px) scale(1.005);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .thumbnail {
@@ -104,7 +138,7 @@
   font-size: 1.25rem;
   line-height: 1;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.15s, color 0.15s, box-shadow 0.25s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -118,6 +152,7 @@
 .add:hover {
   background: var(--accent);
   color: #000;
+  box-shadow: 0 0 12px rgba(29, 185, 84, 0.5), 0 0 24px rgba(29, 185, 84, 0.2);
 }
 
 .remove {
@@ -128,22 +163,9 @@
 .remove:hover {
   background: var(--remove);
   color: #fff;
+  box-shadow: 0 0 12px rgba(231, 76, 60, 0.5), 0 0 24px rgba(231, 76, 60, 0.2);
 }
 
-.progressBar {
-  height: 3px;
-  background: var(--border);
-  border-radius: 2px;
-  margin-top: 0.35rem;
-  overflow: hidden;
-}
-
-.progressFill {
-  height: 100%;
-  background: var(--accent);
-  border-radius: 2px;
-  transition: width 0.1s linear;
-}
 
 .spotifyLink {
   width: 2rem;
@@ -162,4 +184,46 @@
   border-color: #1db954;
   color: #1db954;
   background: rgba(29, 185, 84, 0.1);
+}
+
+@keyframes slideOutLeft {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+    max-height: 100px;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-30px);
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin: 0;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+    max-height: 100px;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(30px);
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin: 0;
+  }
+}
+
+.trackExit {
+  animation: slideOutLeft 0.3s ease forwards;
+  overflow: hidden;
+}
+
+.trackExitPlaylist {
+  animation: slideOutRight 0.3s ease forwards;
+  overflow: hidden;
 }
