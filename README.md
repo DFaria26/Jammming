@@ -36,18 +36,22 @@ Jammming was built as a Codecademy capstone project to demonstrate proficiency w
 - **Accessibility** — ARIA landmarks, skip-to-content link, screen reader labels, and an error boundary for graceful error handling
 - **Responsive Layout** — Fully responsive design with mobile tab switching between Results and Playlist
 
+## Live Demo
+
+[https://jammming-dfaria.netlify.app](https://jammming-dfaria.netlify.app)
+
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 18+
 - A Spotify account (free or premium)
-- A registered app in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) with the redirect URI set to `http://127.0.0.1:3000`
+- A registered app in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) with redirect URIs set to `http://127.0.0.1:3000` and `https://jammming-dfaria.netlify.app`
 
 ### Install & Run
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/DFaria26/Jammming.git
 cd Jammming
 npm install
 npm run dev
@@ -87,4 +91,3 @@ The Spotify Web API's playlist endpoints (specifically adding tracks to a playli
 - Support searching by genre or mood
 - Edit or delete existing Spotify playlists from within the app
 - Add TypeScript for improved type safety and developer experience
-- Deploy to Netlify or Vercel with environment-variable support for the Client ID
