@@ -20,16 +20,21 @@ Jammming was built as a Codecademy capstone project to demonstrate proficiency w
 
 ## Features
 
-- **Spotify Search** — Search the Spotify library by song title, artist, or album name
+- **Spotify Search** — Search the Spotify library by song title, artist, or album name with paginated results (5 per page)
 - **Track Details** — View track name, artist, album, and album artwork for each result
-- **Audio Previews** — Listen to 30-second preview clips with playback progress; only one preview plays at a time across the app
+- **Audio Previews** — Listen to 30-second preview clips; only one preview plays at a time across the app
+- **Geo-Based Trending** — Displays trending tracks based on the user's Spotify country (e.g. "Trending in the UK")
 - **Playlist Builder** — Add tracks with **+** and remove them with **−**; search results automatically hide tracks already in the playlist
+- **Drag-and-Drop Reorder** — Rearrange playlist tracks by dragging them into the desired order
+- **Playlist Stats** — Live stats bar showing track count, total duration, and number of unique artists
+- **Undo Remove** — Toast notification with an Undo button when removing a track, restoring it to its original position
 - **Custom Naming** — Rename the playlist inline by editing the title field
 - **Save to Spotify** — Save the finished playlist directly to your Spotify account with a loading indicator during the save
 - **State Persistence** — Playlist and search state are preserved across login redirects and session expirations so no work is lost
 - **Smart Token Management** — Access tokens expire automatically at the correct time; expired sessions preserve your playlist so you can re-authenticate and continue
-- **Theme Toggle** — Switch between dark and light mode; defaults to your system preference and remembers your choice
-- **Responsive Layout** — Fully responsive design that works on mobile and desktop
+- **Theme Toggle** — Switch between dark and light mode with glassmorphism panels, animated gradient background, and floating particles; defaults to your system preference and remembers your choice
+- **Accessibility** — ARIA landmarks, skip-to-content link, screen reader labels, and an error boundary for graceful error handling
+- **Responsive Layout** — Fully responsive design with mobile tab switching between Results and Playlist
 
 ## Getting Started
 
@@ -55,13 +60,18 @@ Open [http://127.0.0.1:3000](http://127.0.0.1:3000) in your browser. Click **Log
 ```
 src/
   components/
-    SearchBar/       # Search input with controlled text field
-    SearchResults/   # Filtered search results (excludes playlist tracks)
-    Playlist/        # Custom playlist with editable name and save button
-    Tracklist/       # Reusable scrollable track list with single-preview management
-    Track/           # Track row: album art, metadata, preview button, add/remove
+    ErrorBoundary/   # Graceful error handling with styled fallback UI
+    Particles/       # Floating green particle effect for both themes
+    Playlist/        # Custom playlist with drag-and-drop, stats bar, and save
+    SearchBar/       # Search input with clear button
+    SearchResults/   # Paginated search results (excludes playlist tracks)
+    Skeleton/        # Loading placeholder animations
+    Toast/           # Toast notification system with action buttons
+    Track/           # Track row: album art, metadata, preview, add/remove
+    Tracklist/       # Reusable track list with single-preview management
+    TrendingTracks/  # Geo-based trending tracks section
   spotify/
-    spotify.js       # Spotify API module (PKCE auth, search, playlist save, state persistence)
+    spotify.js       # Spotify API module (PKCE auth, search, trending, user profile)
   App.jsx            # Root component — all app state and data flow
   App.module.css     # App-level layout, header, and theme styles
   index.css          # Global reset and CSS custom properties
@@ -75,7 +85,6 @@ The Spotify Web API's playlist endpoints (specifically adding tracks to a playli
 ## Future Work
 
 - Support searching by genre or mood
-- Allow reordering playlist tracks via drag-and-drop
 - Edit or delete existing Spotify playlists from within the app
 - Add TypeScript for improved type safety and developer experience
 - Deploy to Netlify or Vercel with environment-variable support for the Client ID

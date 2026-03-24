@@ -1,5 +1,7 @@
 const CLIENT_ID = '0ef6b1313db5423ba3fb8c86c0ccc061';
-const REDIRECT_URI = 'http://127.0.0.1:3000';
+const REDIRECT_URI = window.location.hostname === '127.0.0.1'
+  ? 'http://127.0.0.1:3000'
+  : window.location.origin;
 const SCOPES = ['playlist-modify-public', 'playlist-modify-private', 'user-read-private'].join(' ');
 const SCOPES_VERSION = 'v3';
 
