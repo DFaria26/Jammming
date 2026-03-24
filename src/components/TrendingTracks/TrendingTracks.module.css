@@ -1,0 +1,79 @@
+.trending {
+  width: 100%;
+  padding: 1.25rem 0;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+  padding: 0 1rem;
+}
+
+.icon {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-label);
+}
+
+.subtitle {
+  margin: 0 0 0.75rem;
+  padding: 0 1rem 0.75rem 2.75rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.trackList {
+  display: flex;
+  flex-direction: column;
+}
+
+.rankedTrack {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rank {
+  width: 1.75rem;
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.rankedTrack:nth-child(1) .rank,
+.rankedTrack:nth-child(2) .rank,
+.rankedTrack:nth-child(3) .rank {
+  color: var(--accent);
+  font-size: 1rem;
+}
+
+.trackContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.error {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  padding: 1rem 0;
+}
